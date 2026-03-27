@@ -1,5 +1,5 @@
 - name: Check application health
   uri:
-    url: "http://{{ inventory_hostname }}:5000/health"
+    url: "http://{{ inventory_hostname }}:{{ app_port }}/health"
     method: GET
     status_code: 200

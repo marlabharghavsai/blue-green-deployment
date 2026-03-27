@@ -24,8 +24,10 @@
     - common
     - app
 
-# 👉 Health check on inactive nodes
+# 👉 Health check on inactive nodes (WITH PORT FIX)
 - hosts: "{{ hostvars['loadbalancer'].inactive_color }}_nodes"
+  vars:
+    app_port: "{{ 5001 if hostvars['loadbalancer'].inactive_color == 'green' else 5000 }}"
   roles:
     - health_check
 
