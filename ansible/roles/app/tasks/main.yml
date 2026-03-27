@@ -1,0 +1,23 @@
+- name: Create app directory
+  file:
+    path: /opt/app
+    state: directory
+
+- name: Copy application files
+  copy:
+    src: ../../../app/
+    dest: /opt/app/
+
+- name: Install Flask dependencies
+  pip:
+    requirements: /opt/app/requirements.txt
+
+- name: Kill existing app if running
+  shell: pkill -f app.py
+  ignore_errors: yes
+
+- name: Run Flask app
+  shell: |
+    nohup python3 /opt/app/app.py > /tmp/app.log 2>&1 &
+  args:
+    executable: /bin/bash
