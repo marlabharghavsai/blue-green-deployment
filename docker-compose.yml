@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  blue1:
+    image: ubuntu:22.04
+    container_name: blue1
+    command: ["sleep", "infinity"]
+    networks:
+      - deploy_net
+
+  blue2:
+    image: ubuntu:22.04
+    container_name: blue2
+    command: ["sleep", "infinity"]
+    networks:
+      - deploy_net
+
+  green1:
+    image: ubuntu:22.04
+    container_name: green1
+    command: ["sleep", "infinity"]
+    networks:
+      - deploy_net
+
+  green2:
+    image: ubuntu:22.04
+    container_name: green2
+    command: ["sleep", "infinity"]
+    networks:
+      - deploy_net
+
+  loadbalancer:
+    image: ubuntu:22.04
+    container_name: loadbalancer
+    ports:
+      - "8080:80"
+    command: ["sleep", "infinity"]
+    networks:
+      - deploy_net
+
+networks:
+  deploy_net:
+    driver: bridge
