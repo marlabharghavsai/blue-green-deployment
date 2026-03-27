@@ -18,6 +18,6 @@
 
 - name: Run Flask app
   shell: |
-    nohup python3 /opt/app/app.py > /tmp/app.log 2>&1 &
+    nohup APP_VERSION={{ app_version }} APP_PORT={{ app_port }} python3 /opt/app/app.py > /tmp/app.log 2>&1 &
   args:
     executable: /bin/bash

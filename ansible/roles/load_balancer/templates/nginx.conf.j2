@@ -4,14 +4,14 @@ upstream blue {
 }
 
 upstream green {
-    server green1:5000;
-    server green2:5000;
+    server green1:5001;
+    server green2:5001;
 }
 
 server {
     listen 80;
 
     location / {
-        proxy_pass http://{{ active_color }};
+        proxy_pass http://{{ target_color }};
     }
 }

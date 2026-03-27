@@ -7,26 +7,31 @@
       ignore_errors: yes
 
     - name: Set colors
-  set_fact:
-    active_color: "{{ 'blue' if result.rc == 0 else 'green' }}"
-    inactive_color: "{{ 'green' if result.rc == 0 else 'blue' }}"
+      set_fact:
+        active_color: "{{ 'blue' if result.rc == 0 else 'green' }}"
+        inactive_color: "{{ 'green' if result.rc == 0 else 'blue' }}"
 
-    - debug:
+    - name: Show colors
+      debug:
         msg: "Active={{ active_color }}, Inactive={{ inactive_color }}"
 
-- hosts: "{{ inactive_color }}_nodes"
+# 👉 Deploy to inactive nodes (WITH PORT FIX)
+- hosts: "{{ hostvars['loadbalancer'].inactive_color }}_nodes"
+  vars:
+    app_version: "{{ app_version }}"
+    app_port: "{{ 5001 if hostvars['loadbalancer'].inactive_color == 'green' else 5000 }}"
   roles:
     - common
     - app
-  vars:
-    app_version: "{{ app_version }}"
 
-- hosts: "{{ inactive_color }}_nodes"
+# 👉 Health check on inactive nodes
+- hosts: "{{ hostvars['loadbalancer'].inactive_color }}_nodes"
   roles:
     - health_check
 
+# 👉 Switch traffic to new environment
 - hosts: loadbalancer
   vars:
-    active_color: "{{ inactive_color }}"
+    target_color: "{{ hostvars['loadbalancer'].inactive_color }}"
   roles:
     - load_balancer
