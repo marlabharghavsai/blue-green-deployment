@@ -1,0 +1,32 @@
+- hosts: loadbalancer
+  gather_facts: no
+  tasks:
+    - name: Detect active color
+      shell: grep proxy_pass /etc/nginx/sites-enabled/default | grep blue
+      register: result
+      ignore_errors: yes
+
+    - name: Set colors
+      set_fact:
+        active_color: "{{ 'blue' if result.rc == 0 else 'green' }}"
+        inactive_color: "{{ 'green' if active_color == 'blue' else 'blue' }}"
+
+    - debug:
+        msg: "Active={{ active_color }}, Inactive={{ inactive_color }}"
+
+- hosts: "{{ inactive_color }}_nodes"
+  roles:
+    - common
+    - app
+  vars:
+    app_version: "{{ app_version }}"
+
+- hosts: "{{ inactive_color }}_nodes"
+  roles:
+    - health_check
+
+- hosts: loadbalancer
+  vars:
+    active_color: "{{ inactive_color }}"
+  roles:
+    - load_balancer
