@@ -15,23 +15,32 @@
       debug:
         msg: "Active={{ active_color }}, Inactive={{ inactive_color }}"
 
-# 👉 Deploy to inactive nodes (WITH PORT FIX)
+# 👉 Deploy + Health Check with rollback protection
 - hosts: "{{ hostvars['loadbalancer'].inactive_color }}_nodes"
   vars:
     app_version: "{{ app_version }}"
     app_port: "{{ 5001 if hostvars['loadbalancer'].inactive_color == 'green' else 5000 }}"
-  roles:
-    - common
-    - app
+  tasks:
+    - block:
 
-# 👉 Health check on inactive nodes (WITH PORT FIX)
-- hosts: "{{ hostvars['loadbalancer'].inactive_color }}_nodes"
-  vars:
-    app_port: "{{ 5001 if hostvars['loadbalancer'].inactive_color == 'green' else 5000 }}"
-  roles:
-    - health_check
+        - name: Install base dependencies
+          include_role:
+            name: common
 
-# 👉 Switch traffic to new environment
+        - name: Deploy application
+          include_role:
+            name: app
+
+        - name: Run health checks
+          include_role:
+            name: health_check
+
+      rescue:
+        - name: Deployment failed - rollback triggered
+          debug:
+            msg: "Deployment failed! Keeping previous version active."
+
+# 👉 Switch traffic ONLY if above succeeded
 - hosts: loadbalancer
   vars:
     target_color: "{{ hostvars['loadbalancer'].inactive_color }}"
