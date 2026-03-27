@@ -1,0 +1,6 @@
+- hosts: loadbalancer
+  vars:
+    active_color: blue
+  roles:
+    - common
+    - load_balancer
