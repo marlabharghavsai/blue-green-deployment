@@ -7,9 +7,9 @@
       ignore_errors: yes
 
     - name: Set colors
-      set_fact:
-        active_color: "{{ 'blue' if result.rc == 0 else 'green' }}"
-        inactive_color: "{{ 'green' if active_color == 'blue' else 'blue' }}"
+  set_fact:
+    active_color: "{{ 'blue' if result.rc == 0 else 'green' }}"
+    inactive_color: "{{ 'green' if result.rc == 0 else 'blue' }}"
 
     - debug:
         msg: "Active={{ active_color }}, Inactive={{ inactive_color }}"
